@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="developer" content="24cs019">
+<meta name="author" content="24cs019">
+<title>Astra-Logica · Space Event Tracker</title>
+<!-- Hidden Developer: 24cs019 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<!-- ── Starfield Canvas ── -->
+
+<!-- Crafted by 24cs019 -->
+<canvas id="starfield"></canvas>
+
+<!-- ── Sidebar Nav ── -->
+<nav id="sidebar">
+  <div class="logo">
+    <span class="logo-icon">✦</span>
+    <span class="logo-text"> Astra-Logica </span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" class="nav-item active" data-page="dashboard"><span class="nav-icon">⬡</span>Dashboard</a></li>
+    <li><a href="#" class="nav-item" data-page="events"><span class="nav-icon">◈</span>All Events</a></li>
+    <li><a href="#" class="nav-item" data-page="eclipses"><span class="nav-icon">◐</span>Eclipses</a></li>
+    <li><a href="#" class="nav-item" data-page="meteorites"><span class="nav-icon">✦</span>Meteorites</a></li>
+    <li><a href="#" class="nav-item" data-page="comets"><span class="nav-icon">☄</span>Comets</a></li>
+    <li><a href="#" class="nav-item" data-page="conjunctions"><span class="nav-icon">⊕</span>Conjunctions</a></li>
+    <li><a href="#" class="nav-item" data-page="observations"><span class="nav-icon">◎</span>Observations</a></li>
+    <li><a href="#" class="nav-item" data-page="locations"><span class="nav-icon">⊙</span>Locations</a></li>
+    <li><a href="#" class="nav-item" data-page="map"><span class="nav-icon">◉</span>Map</a></li>
+    <li><a href="#" class="nav-item" data-page="visibility"><span class="nav-icon">👁</span>Visibility</a></li>
+    <li class="nav-divider"></li>
+    <li><a href="#" class="nav-item nav-admin" data-page="admin"><span class="nav-icon">⚙</span>Admin Panel</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <span class="status-dot"></span> LIVE TRACKING
+  </div>
+  <!-- dev:24cs019 -->
+</nav>
+
+<!-- ── Main Content ── -->
+<main id="main">
+
+  <!-- Header -->
+  <header id="top-bar">
+    <div class="hamburger" id="hamburger">☰</div>
+    <div class="search-wrap">
+      <input type="text" id="global-search" placeholder="Search events, comets, meteorites…" autocomplete="off">
+      <div id="search-results" class="search-dropdown hidden"></div>
+    </div>
+    <div class="header-info">
+      <span id="clock"></span>
+    </div>
+  </header>
+
+  <!-- Pages -->
+  <div id="pages">
+
+    <!-- ─ DASHBOARD ─────────────────────────────────────── -->
+    <section id="page-dashboard" class="page active">
+      <div class="page-header">
+        <h1>Mission Control</h1>
+        <p class="subtitle">Real-time space event intelligence</p>
+      </div>
+
+      <div class="stat-grid" id="stat-cards">
+        <div class="stat-card" data-color="solar">
+          <div class="stat-label">Solar Eclipses</div>
+          <div class="stat-value" id="stat-solar">—</div>
+          <div class="stat-sub">recorded events</div>
+        </div>
+        <div class="stat-card" data-color="lunar">
+          <div class="stat-label">Lunar Eclipses</div>
+          <div class="stat-value" id="stat-lunar">—</div>
+          <div class="stat-sub">recorded events</div>
+        </div>
+        <div class="stat-card" data-color="meteor">
+          <div class="stat-label">Meteorite Impacts</div>
+          <div class="stat-value" id="stat-meteor">—</div>
+          <div class="stat-sub">catalogued strikes</div>
+        </div>
+        <div class="stat-card" data-color="comet">
+          <div class="stat-label">Comet Approaches</div>
+          <div class="stat-value" id="stat-comet">—</div>
+          <div class="stat-sub">orbital records</div>
+        </div>
+        <div class="stat-card" data-color="conj">
+          <div class="stat-label">Conjunctions</div>
+          <div class="stat-value" id="stat-conj">—</div>
+          <div class="stat-sub">planetary alignments</div>
+        </div>
+        <div class="stat-card total-card">
+          <div class="stat-label">Total Events</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">across all categories</div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="chart-box" id="chart-box-timeline">
+          <h3>Events by Century</h3>
+          <canvas id="chart-timeline"></canvas>
+        </div>
+        <div class="chart-box" id="chart-box-types">
+          <h3>Distribution by Type</h3>
+          <canvas id="chart-types"></canvas>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="info-box">
+          <h3>⚡ Meteorite Mass Stats</h3>
+          <div class="info-grid" id="mass-stats"></div>
+        </div>
+        <div class="info-box">
+          <h3>◐ Eclipse Magnitude Stats</h3>
+          <div class="info-grid" id="mag-stats"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─ ALL EVENTS ──────────────────────────────────────── -->
+    <section id="page-events" class="page">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Event Catalogue</h1>
+          <p class="subtitle">Browse all recorded space events</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-event">+ New Event</button>
+      </div>
+      <div class="filter-bar">
+        <select id="filter-type">
+          <option value="">All Types</option>
+          <option value="Solar Eclipse">Solar Eclipse</option>
+          <option value="Lunar Eclipse">Lunar Eclipse</option>
+          <option value="Meteorite Impact">Meteorite Impact</option>
+          <option value="Planetary Conjunction">Planetary Conjunction</option>
+          <option value="Comet Approach">Comet Approach</option>
+        </select>
+        <input type="text" id="filter-search" placeholder="Filter by name…">
+        <button class="btn" id="btn-filter">Apply</button>
+      </div>
+      <div id="events-table-wrap">
+        <table class="data-table" id="events-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Event Name</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Detail</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="events-tbody"></tbody>
+        </table>
+        <div class="pagination" id="events-pagination"></div>
+      </div>
+    </section>
+
+    <!-- ─ ECLIPSES ───────────────────────────────────────── -->
+    <section id="page-eclipses" class="page">
+      <div class="page-header">
+        <h1>Eclipse Records</h1>
+        <p class="subtitle">Solar &amp; Lunar eclipse database</p>
+      </div>
+      <div class="filter-bar">
+        <button class="btn active-filter" data-eclipse="both" id="ecl-all">All</button>
+        <button class="btn" data-eclipse="Solar" id="ecl-solar">☀ Solar</button>
+        <button class="btn" data-eclipse="Lunar" id="ecl-lunar">☽ Lunar</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th><th>Type</th><th>Kind</th><th>Magnitude</th><th>Gamma</th><th>Time (UTC)</th><th>Location</th>
+          </tr>
+        </thead>
+        <tbody id="eclipse-tbody"></tbody>
+      </table>
+      <div class="pagination" id="eclipse-pagination"></div>
+    </section>
+
+    <!-- ─ METEORITES ─────────────────────────────────────── -->
+    <section id="page-meteorites" class="page">
+      <div class="page-header">
+        <h1>Meteorite Impacts</h1>
+        <p class="subtitle">Global impact catalogue — 2,000 records</p>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="meteor-search" placeholder="Search meteorite name…">
+        <button class="btn" id="btn-meteor-search">Search</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Year</th><th>Mass (g)</th><th>Latitude</th><th>Longitude</th>
+          </tr>
+        </thead>
+        <tbody id="meteor-tbody"></tbody>
+      </table>
+      <div class="pagination" id="meteor-pagination"></div>
+    </section>
+
+    <!-- ─ COMETS ─────────────────────────────────────────── -->
+    <section id="page-comets" class="page">
+      <div class="page-header">
+        <h1>Near-Earth Comets</h1>
+        <p class="subtitle">Orbital parameters of tracked comets</p>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Comet Name</th><th>Perihelion (AU)</th><th>Aphelion (AU)</th><th>Period (yr)</th><th>Perihelion Date</th>
+          </tr>
+        </thead>
+        <tbody id="comet-tbody"></tbody>
+      </table>
+    </section>
+
+    <!-- ─ CONJUNCTIONS ───────────────────────────────────── -->
+    <section id="page-conjunctions" class="page">
+      <div class="page-header">
+        <h1>Planetary Conjunctions</h1>
+        <p class="subtitle">When planets dance closest together</p>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Event</th><th>Date</th><th>Time</th><th>Planet 1</th><th>Planet 2</th><th>Separation (°)</th>
+          </tr>
+        </thead>
+        <tbody id="conj-tbody"></tbody>
+      </table>
+    </section>
+
+    <!-- ─ OBSERVATIONS ───────────────────────────────────── -->
+    <section id="page-observations" class="page">
+      <div class="page-header">
+        <h1>Observation Log</h1>
+        <p class="subtitle">Record and track astronomical observations</p>
+      </div>
+      <div class="obs-layout">
+        <div class="obs-form-wrap">
+          <h3>Add New Observation</h3>
+          <div class="form-group">
+            <label>Event ID</label>
+            <input type="number" id="obs-event-id" placeholder="e.g. 1042">
+          </div>
+          <div class="form-group">
+            <label>Observer Name</label>
+            <input type="text" id="obs-name" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="obs-date">
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="obs-notes" placeholder="What did you observe?"></textarea>
+          </div>
+          <button class="btn btn-primary" id="btn-add-obs">Record Observation</button>
+          <div id="obs-msg"></div>
+        </div>
+        <div class="obs-list-wrap">
+          <h3>Recent Observations</h3>
+          <div id="obs-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─ LOCATIONS ─────────────────────────────────────── -->
+    <section id="page-locations" class="page">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Observation Locations</h1>
+          <p class="subtitle">Manage locations for event visibility tracking</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-location">+ New Location</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Country</th><th>City</th><th>Latitude</th><th>Longitude</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="locations-tbody"></tbody>
+      </table>
+    </section>
+
+    <!-- ─ MAP ────────────────────────────────────────────── -->
+    <section id="page-map" class="page">
+      <div class="page-header">
+        <h1>Impact Map</h1>
+        <p class="subtitle">Global meteorite landing locations</p>
+      </div>
+      <div class="map-controls">
+        <span class="map-info">Showing up to 200 recorded meteorite impacts</span>
+        <button class="btn" id="btn-load-map">Load Map</button>
+      </div>
+      <div id="map-container">
+        <div id="map-placeholder">
+          <div class="map-ph-inner">
+            <div class="map-ph-icon">◉</div>
+            <p>Click "Load Map" to display meteorite impact locations</p>
+            <p class="map-ph-sub">Uses Leaflet — free open-source mapping</p>
+          </div>
+        </div>
+        <div id="google-map" style="display:none; width:100%; height:100%;"></div>
+      </div>
+      <div id="map-table-wrap">
+        <h3>Impact Coordinates</h3>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Year</th><th>Mass (g)</th><th>Latitude</th><th>Longitude</th></tr></thead>
+          <tbody id="map-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─ VISIBILITY ─────────────────────────────────────── -->
+    <section id="page-visibility" class="page">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h1>Event Visibility</h1>
+          <p class="subtitle">Track which events are visible from which locations</p>
+        </div>
+        <button class="btn btn-primary" id="btn-new-visibility">+ Add Visibility</button>
+      </div>
+      <div class="filter-bar">
+        <select id="vis-filter-event-type">
+          <option value="">All Event Types</option>
+          <option value="Solar Eclipse">Solar Eclipse</option>
+          <option value="Lunar Eclipse">Lunar Eclipse</option>
+          <option value="Meteorite Impact">Meteorite Impact</option>
+          <option value="Planetary Conjunction">Planetary Conjunction</option>
+          <option value="Comet Approach">Comet Approach</option>
+        </select>
+        <button class="btn" id="btn-vis-filter">Filter</button>
+      </div>
+      <table class="data-table" id="visibility-table">
+        <thead>
+          <tr><th>#</th><th>Event</th><th>City</th><th>Country</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="visibility-tbody"></tbody>
+      </table>
+      <div class="vis-stats-box" id="vis-stats-box">
+        <h3>📍 Visibility by Location</h3>
+        <div id="vis-stats-list"></div>
+      </div>
+    </section>
+
+    <!-- ─ ADMIN PANEL ─────────────────────────────────────── -->
+    <section id="page-admin" class="page">
+      <div class="page-header">
+        <h1>⚙ Admin Panel</h1>
+        <p class="subtitle">Manage all database records — authorized access only</p>
+      </div>
+      <div class="admin-grid">
+
+        <!-- Event Types Management -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>Event Types</h3>
+            <button class="btn btn-primary btn-sm" id="btn-admin-new-type">+ Add Type</button>
+          </div>
+          <table class="data-table" style="margin:0">
+            <thead><tr><th>#</th><th>Type Name</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody id="admin-types-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Quick Add Eclipse -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>Quick Add Eclipse</h3>
+          </div>
+          <div id="admin-eclipse-form">
+            <div class="form-group"><label>Event Name</label><input type="text" id="adm-ecl-name" placeholder="e.g. Total Solar Eclipse 2025"></div>
+            <div class="form-group"><label>Date</label><input type="date" id="adm-ecl-date"></div>
+            <div class="form-group"><label>Event Type</label>
+              <select id="adm-ecl-type" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--text);font-family:var(--font-mono);font-size:12px">
+                <option value="1">Solar Eclipse</option>
+                <option value="2">Lunar Eclipse</option>
+              </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="form-group"><label>Eclipse Kind</label><input type="text" id="adm-ecl-kind" placeholder="Total / Partial / Annular"></div>
+              <div class="form-group"><label>Magnitude</label><input type="number" id="adm-ecl-mag" step="0.0001"></div>
+              <div class="form-group"><label>Gamma</label><input type="number" id="adm-ecl-gamma" step="0.0001"></div>
+              <div class="form-group"><label>Time (UTC)</label><input type="time" id="adm-ecl-time"></div>
+              <div class="form-group"><label>Latitude</label><input type="number" id="adm-ecl-lat" step="0.01"></div>
+              <div class="form-group"><label>Longitude</label><input type="number" id="adm-ecl-lon" step="0.01"></div>
+            </div>
+            <button class="btn btn-primary" id="btn-admin-add-eclipse">Save Eclipse Event</button>
+            <div id="adm-ecl-msg" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+          </div>
+        </div>
+
+        <!-- Quick Add Meteorite -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>Quick Add Meteorite</h3>
+          </div>
+          <div id="admin-meteorite-form">
+            <div class="form-group"><label>Meteorite Name</label><input type="text" id="adm-met-name" placeholder="e.g. Allende"></div>
+            <div class="form-group"><label>Year</label><input type="number" id="adm-met-year" placeholder="e.g. 1969"></div>
+            <div class="form-group"><label>Mass (grams)</label><input type="number" id="adm-met-mass" step="0.001"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="form-group"><label>Latitude</label><input type="number" id="adm-met-lat" step="0.0001"></div>
+              <div class="form-group"><label>Longitude</label><input type="number" id="adm-met-lon" step="0.0001"></div>
+            </div>
+            <button class="btn btn-primary" id="btn-admin-add-meteorite">Save Meteorite</button>
+            <div id="adm-met-msg" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+          </div>
+        </div>
+
+        <!-- Quick Add Conjunction -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>Quick Add Conjunction</h3>
+          </div>
+          <div id="admin-conjunction-form">
+            <div class="form-group"><label>Event Name</label><input type="text" id="adm-conj-name" placeholder="e.g. Jupiter-Saturn Conjunction"></div>
+            <div class="form-group"><label>Date</label><input type="date" id="adm-conj-date"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="form-group"><label>Planet 1</label><input type="text" id="adm-conj-p1" placeholder="Jupiter"></div>
+              <div class="form-group"><label>Planet 2</label><input type="text" id="adm-conj-p2" placeholder="Saturn"></div>
+              <div class="form-group"><label>Separation (°)</label><input type="number" id="adm-conj-sep" step="0.0001"></div>
+              <div class="form-group"><label>Time (UTC)</label><input type="time" id="adm-conj-time"></div>
+            </div>
+            <button class="btn btn-primary" id="btn-admin-add-conjunction">Save Conjunction</button>
+            <div id="adm-conj-msg" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+          </div>
+        </div>
+
+        <!-- Quick Add Comet -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>Quick Add Comet</h3>
+          </div>
+          <div id="admin-comet-form">
+            <div class="form-group"><label>Comet Name</label><input type="text" id="adm-com-name" placeholder="e.g. Halley's Comet"></div>
+            <div class="form-group"><label>Perihelion Date</label><input type="date" id="adm-com-date"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="form-group"><label>Perihelion (AU)</label><input type="number" id="adm-com-peri" step="0.000001"></div>
+              <div class="form-group"><label>Aphelion (AU)</label><input type="number" id="adm-com-aph" step="0.001"></div>
+              <div class="form-group"><label>Period (yr)</label><input type="number" id="adm-com-period" step="0.001"></div>
+            </div>
+            <button class="btn btn-primary" id="btn-admin-add-comet">Save Comet</button>
+            <div id="adm-com-msg" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+          </div>
+        </div>
+
+        <!-- DB Stats -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3>Database Summary</h3>
+            <button class="btn btn-sm" id="btn-admin-refresh-stats">↻ Refresh</button>
+          </div>
+          <div id="admin-db-stats" class="info-grid"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /pages -->
+</main>
+
+<!-- ── Event Detail Modal ── -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ── CRUD Form Modal ── -->
+<div id="crud-modal-overlay" class="modal-overlay hidden">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" id="crud-modal-close">✕</button>
+    <div class="modal-title" id="crud-modal-title">Create</div>
+    <form id="crud-form">
+      <div id="crud-form-fields"></div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button type="submit" class="btn btn-primary" id="crud-submit-btn">Save</button>
+        <button type="button" class="btn" id="crud-cancel-btn">Cancel</button>
+      </div>
+      <div id="crud-msg" style="margin-top:10px;font-size:12px;min-height:20px"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Delete Confirm Modal ── -->
+<div id="confirm-modal-overlay" class="modal-overlay hidden">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div class="modal-title" style="font-size:16px;margin-bottom:12px" id="confirm-title">Confirm Delete</div>
+    <p style="color:var(--text-dim);margin-bottom:20px" id="confirm-msg">Are you sure?</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn" style="background:var(--danger);color:#fff;border-color:var(--danger)" id="confirm-yes">Delete</button>
+      <button class="btn" id="confirm-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- Leaflet for Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="static/js/main.js"></script>
+
+<!-- Hidden Developer: 24cs019 -->
+<div id="dev-credit-24cs019" style="display:none" data-developer="24cs019" data-role="hidden-developer">24cs019</div>
+</body>
+</html>
